@@ -11,17 +11,17 @@ class AccountResource(object):
 
   @inject(db=SQLAlchemy)
   def __init__(self, db):
-    self._db = db
+    self.accounts = db.session.query(Account)
 
   def list(self):
     res = []
-    for account in self._db.session.query(Account):
+    for account in self.accounts:
       res.append(self._to_simple(account))
     return dumps(res)
 
   def get(self, id):
-    account = self._db.session.query(Account).get(id)
-    return self._to_simple(account)
+    account = self.accounts.get(id)
+    return dumps(self._to_simple(account))
 
   def _to_simple(self, account):
     return {

@@ -15,10 +15,10 @@ class Resources(object):
     app.register_blueprint(self._blueprint, url_prefix=url_prefix)
 
   def _register_list(self, root, resourceCls):
-    if not getattr(resourceCls, 'list'):
+    if not getattr(resourceCls, 'list', None):
       return
 
-    url  = '%s/' % (root)
+    url  = '%s/' % root
     name = '%s_list' % resourceCls.name
 
     @inject(resource=resourceCls)
@@ -28,14 +28,14 @@ class Resources(object):
     self._blueprint.add_url_rule(url, name, list)
 
   def _register_get(self, root, resourceCls):
-    if not getattr(resourceCls, 'get'):
+    if not getattr(resourceCls, 'get', None):
       return
 
-    url  = '%s/<id>' % (root)
+    url  = '%s/<id>' % root
     name = '%s_get' % resourceCls.name
 
     @inject(resource=resourceCls)
     def get(id, resource):
       return resource.get(id)
 
-    self._blueprint.add_url_rule(url, name, list)
+    self._blueprint.add_url_rule(url, name, get)
