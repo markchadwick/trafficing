@@ -1,21 +1,35 @@
-from sqlalchemy.sql import func
+from flask.ext.sqlalchemy import SQLAlchemy
 from hashlib import sha1
+from injector import inject
+from sqlalchemy import Column
+from sqlalchemy import ForeignKey
+from sqlalchemy import String
+from sqlalchemy.orm import backref
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 
+from api.model import Base
+from api.model import Collection
 from api.model import WithPublicId
-from api.model import db
 
 
-class Account(db.Model, WithPublicId):
+class User(Base, WithPublicId):
   __tablename__ = 'logins'
 
-  account_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
-  email      = db.Column(db.String(255), nullable=False, unique=True)
-  password   = db.Column(db.String(255), nullable=False)
+  account_id = Column(String, ForeignKey('users.id'), nullable=False)
+  email      = Column(String(255), nullable=False, unique=True)
+  password   = Column(String(255), nullable=False)
 
-  account = db.relationship('User',
-              backref=db.backref('users', cascase='all,delete'))
+  # account = relationship('User',
+  #             backref=backref('users', cascase='all,delete'))
 
-  @classmethod
+
+class Users(Collection):
+
+  @inject(db=SQLAlchemy)
+  def __init__(self, db):
+    super(Users, self).__init__(User, db)
+
   def authenticate(cls, email, password):
     """
     A rough approximation of Django's built-in authentication mechanism. Queries

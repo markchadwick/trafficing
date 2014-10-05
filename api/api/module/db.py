@@ -2,6 +2,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from injector import Module
 from injector import singleton
 
+from api.model import Base
 
 class DbModule(Module):
 
@@ -9,4 +10,6 @@ class DbModule(Module):
     self._app = app
 
   def configure(self, binder):
-    binder.bind(SQLAlchemy, to=SQLAlchemy(self._app), scope=singleton)
+    db = SQLAlchemy(self._app)
+    db.Model = Base
+    binder.bind(SQLAlchemy, to=db, scope=singleton)

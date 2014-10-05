@@ -6,19 +6,24 @@
 #
 #from test import ModelTestCase
 
+from injector import inject
+
 from api.model import Account
+from api.model import Accounts
 from test import ModelTest
 
 
 class TestAccount(ModelTest):
- def test_get_by_id(self):
-   account = Account(email='test@foo.com', name='Test User')
-   db.session.add(user)
-   db.session.commit()
 
-   account1 = Account.query.get(account.id)
+ @inject(accounts=Accounts)
+ def test_get_by_id(self, accounts):
+   account = Account(email='test@foo.com', name='Test User')
+   self.db.session.add(account)
+   self.db.session.commit()
+
+   account1 = accounts.query.get(account.id)
    self.assertEquals(account.id, account1.id)
-#
+
 #  def test_has_advertisers(self):
 #    user1 = self.create_user(email='user1@example.com')
 #    user2 = self.create_user(email='user2@example.com')

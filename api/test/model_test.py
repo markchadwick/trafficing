@@ -1,11 +1,15 @@
-from api import model
-from test import TestCase
+from flask.ext.sqlalchemy import SQLAlchemy
+from injector import inject
 
+from test import TestCase
 
 class ModelTest(TestCase):
 
-  def setUp(self):
+  @inject(db=SQLAlchemy)
+  def setUp(self, db):
     super(ModelTest, self).setUp()
+    from api import model
 
-    model.db.drop_all()
-    model.db.create_all()
+    db.drop_all()
+    db.create_all()
+    self.db = db

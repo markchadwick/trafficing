@@ -1,24 +1,24 @@
-from flask import Flask
 from flask.ext.testing import TestCase as FlaskTest
-from injector import Injector
 
-from module import AppModule
-from module import DbModule
-import config
+from api import app_and_injector
+from config import abs
+
+
 
 
 class TestCase(FlaskTest):
 
-  def __init__(self, *args, **kwargs):
-    super(TestCase, self).__init__(*args, **kwargs)
-
-    self._injector = Injector([
-      AppModule(config.abs('test.py')),
-      DbModule()
-    ])
+  def modules(self):
+    return []
 
   def create_app(self):
-    return self._injector.get(Flask)
+    config_file   = abs('test.py')
+    app, injector = app_and_injector(config_file, *self.modules())
+
+    injector.install_into(self)
+    self.injector = injector
+
+    return app
 
 
 from model_test import ModelTest
