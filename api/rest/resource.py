@@ -2,12 +2,21 @@ import json
 
 from flask import Request
 from flask import Response
+from flask_injector import request
 from functools import wraps
+from injector import Injector
+from injector import Key
 from injector import inject
 from schema import Schema
 
 from rest import Codec
 from rest import exc
+
+
+ReadSchema  = Key('resource.schema.read')
+Instance    = Key('resource.instance')
+MethodName  = Key('resource.methodname')
+WriteSchema = Key('resource.schema.write')
 
 
 class Resource(object):
@@ -36,23 +45,32 @@ class Resource(object):
     if not hasattr(self._cls, name):
       return
 
-    @self._parse_request
-    @inject(resource=self._cls)
-    def handle(resource, *args, **kwargs):
-      return self._handle(getattr(resource, name), args, kwargs)
+    url      = self.root + path
+    endpoint = self.name + '#' + name
 
-    url = self._url(path)
-    endpoint = self._endpoint(name)
-    blueprint.add_url_rule(url, endpoint, handle)
+    from rest.handler import Handler
+    @inject(parent=Injector, resource=self._cls)
+    def handle(parent, resource, *args, **kwargs):
+      module    = self._request_module(resource, name)
+      injector  = Injector(modules=[module], parent=parent)
+      handler   = injector.get(Handler)
 
-  def _url(self, relative):
-    return self.root + relative
+      return handler(*args, **kwargs)
 
-  def _endpoint(self, name):
-    return self.name + '#' + name
+    blueprint.add_url_rule(url, endpoint, handle, methods=methods)
+
+  def _request_module(self, instance, method_name):
+    def configure(binder):
+      binder.bind(Instance, to=instance, scope=request)
+      binder.bind(MethodName, to=method_name, scope=request)
+      binder.bind(ReadSchema, to=self._read_schema)
+      binder.bind(WriteSchema, to=self._write_schema)
+    return configure
 
   def _get_schema(self, named):
-    return getattr(self._cls, named, getattr(self._cls, 'schema', {}))
+    return getattr(self._cls, named,
+      getattr(self._cls, 'schema',
+        object))
 
   def _handle(self, func, args, kwargs):
     try:
@@ -62,45 +80,3 @@ class Resource(object):
     except exc.RestException, e:
       html = '<h1>%s</h1>' % e.message
       return Response(status=e.status, response=html)
-
-  def _parse_request(self, func):
-    """
-    In the case of a PUT or POST request, parse the body, and deserialize it
-    using the current codec. The deserialized object will be validated and
-    passed the the wrapped function.
-    """
-    @wraps(func)
-    @inject(request=Request, codec=Codec)
-    def parse(request, codec, *args, **kwargs):
-      method = request.method
-      if method == 'PUT' or method == 'POST':
-        try:
-          data = codec.decode(request.data)
-        except Exception, e:
-          raise exc.BadRequest({'error': e.message})
-        return func(data, *args, **kwargs)
-      else:
-        return func(*args, **kwargs)
-
-    return parse
-
-  def _flask_response(self, func):
-    """
-    Decorator that wraps a function call to return a Flask response. It's
-    assumed that the function will either return a simple object, or raise an
-    exception. If a `RestException` is thrown, it will use its status code and
-    any `toObject` message semantics, otherwise, a simple 500 message will be
-    returned.
-    """
-    @wraps(func)
-    @inject(codec=Codec)
-    def resp(codec, *args, **kwargs):
-      try:
-        response = func(*args, **kwargs)
-        return codec.response(200, response)
-      except exc.RestException, e:
-        return Response(e.status, e.toObject())
-      except Exception, e:
-        return Response(500, {'error', e.message})
-    return resp
-

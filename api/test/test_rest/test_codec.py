@@ -3,7 +3,7 @@ import unittest
 from rest.codec import JsonCodec
 
 
-class CodecTest(unittest.TestCase):
+class TestCodec(unittest.TestCase):
 
   def setUp(self):
     self.json = JsonCodec()

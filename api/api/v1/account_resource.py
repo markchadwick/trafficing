@@ -1,6 +1,5 @@
 from flask import url_for
 from injector import inject
-from json import dumps
 
 from api.model import Accounts
 
@@ -16,11 +15,11 @@ class AccountResource(object):
     res = []
     for account in self.accounts.query:
       res.append(self._to_simple(account))
-    return dumps(res)
+    return res
 
   def get_by_id(self, id):
     account = self.accounts.query.get(id)
-    return dumps(self._to_simple(account))
+    return self._to_simple(account)
 
   def _to_simple(self, account):
     return {
