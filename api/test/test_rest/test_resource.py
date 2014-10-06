@@ -35,12 +35,6 @@ class WithSchema(object):
     return person
 
 
-class Request(object):
-  def __init__(self, method, data=None):
-    self.method = method
-    self.data = data
-
-
 class RoutingModule(Module):
   @inject(app=Flask)
   def configure(self, binder, app):
@@ -57,43 +51,7 @@ class TestResource(TestCase):
   def modules(self):
     return [RoutingModule()]
 
-  def test_parse_get_request(self):
-    self.called = False
-    def handle():
-      self.called = True
-
-    noop    = Resource(NoOp, 'noop')
-    request = Request('GET')
-    codec   = JsonCodec()
-    wrapped = noop._parse_request(handle)
-
-    wrapped(request=request, codec=codec)
-    self.assertTrue(self.called)
-
-  def test_parse_post(self):
-    self.called = False
-    def handle(data):
-      self.assertEquals({'hi': [123]}, data)
-      self.called = True
-
-    noop    = Resource(NoOp, 'noop')
-    request = Request('POST', '{"hi":[123]}')
-    codec   = JsonCodec()
-    wrapped = noop._parse_request(handle)
-
-    wrapped(request=request, codec=codec)
-    self.assertTrue(self.called)
-
   def test_get_requet(self):
     resp = self.client.get('/test/simple-get')
     self.assert200(resp)
     self.assertEquals('{"simple": "object"}', resp.data)
-
-  # def test_post_with_schema(self):
-  #   resp = self.client.post('/test/with-schema/')
-  #   print '- ' * 30
-  #   print resp
-  #   print resp.data
-  #   print '- ' * 30
-  #   self.assert200(resp)
-  #   self.assertEquals('{"simple": "object"}', resp.data)

@@ -12,7 +12,7 @@ class RestException(Exception):
 
 class BadRequest(RestException):
   def __init__(self, errors):
-    super(Forbidden, self).__init__(400, 'Bad Request')
+    super(BadRequest, self).__init__(400, 'Bad Request')
     self.errors = errors
 
   def toObject(self):

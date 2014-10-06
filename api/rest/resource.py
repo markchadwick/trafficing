@@ -71,12 +71,3 @@ class Resource(object):
     return getattr(self._cls, named,
       getattr(self._cls, 'schema',
         object))
-
-  def _handle(self, func, args, kwargs):
-    try:
-      result = func(*args, **kwargs)
-      Schema(self._write_schema).validate(result)
-      return json.dumps(result)
-    except exc.RestException, e:
-      html = '<h1>%s</h1>' % e.message
-      return Response(status=e.status, response=html)

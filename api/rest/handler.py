@@ -1,9 +1,8 @@
 from flask import Request
-from flask import Response
 from flask_injector import request
 from injector import Injector
 from injector import inject
-
+from schema import Schema
 
 from rest import Codec
 from rest import exc
@@ -48,7 +47,7 @@ class Handler(object):
         raise exc.BadRequest({'error': e.message})
 
       # TODO: this raises for now to see what this jam returns
-      schema.validate(data)
+      # Schema(schema).validate(data)
 
       return data
 
