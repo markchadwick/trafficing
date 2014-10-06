@@ -1,15 +1,16 @@
-from api.model import User
-from api.model import Users
 from flask import Flask
 from flask import Request
 from flask import Session
 from flask import globals
+from flask_cors import CORS
 from flask_injector import request
 from injector import Module
 from injector import inject
 from injector import provides
 from injector import singleton
 
+from api.model import User
+from api.v1 import SessionResource
 from rest import Codec
 from rest import JsonCodec
 
@@ -25,6 +26,7 @@ class AppModule(Module):
     app = Flask(__name__)
     app.config.from_pyfile(self._config_file)
 
+    CORS(app, resources={r'/api/*': {'origins': '*'}})
     return app
 
   @provides(Session)
@@ -35,9 +37,9 @@ class AppModule(Module):
 
   @provides(User)
   @request
-  @inject(users=Users, session=Session)
-  def provide_current_user(self, users, session):
-    return User(email='mark.chadwick@gmail.com')
+  @inject(sessions=SessionResource)
+  def provide_current_user(self, sessions):
+    return sessions.user
 
   @provides(Codec)
   @request

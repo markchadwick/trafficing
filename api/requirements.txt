@@ -1,4 +1,5 @@
 Flask             == 0.10.1
+Flask-Cors        == 1.9.0
 Flask-Injector    == 0.4.0
 Flask-SQLAlchemy  == 0.16
 Flask-Script      == 2.0.5
