@@ -4,6 +4,7 @@ from schema import And
 from schema import Use
 
 from api.model import User
+from api.model import Users
 from rest import exc
 
 
@@ -19,9 +20,10 @@ class SessionResource(object):
     'email':    Use(str)
   }
 
-  @inject(user=User, session=Session)
-  def __init__(self, user, session):
-    self.user = user
+  @inject(user=User, users=Users, session=Session)
+  def __init__(self, user, users, session):
+    self.user    = user
+    self.users   = users
     self.session = session
 
   def get(self):
@@ -32,5 +34,9 @@ class SessionResource(object):
       'email': self.user.email,
     }
 
-  def create(self, schema):
+  def create(self, user):
+    user = self.users.authenticate(user['email'], user['password'])
+    if user is None:
+      raise exc.Forbidden()
+
     pass

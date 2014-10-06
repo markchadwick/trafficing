@@ -17,7 +17,7 @@ class TestAccount(ModelTest):
 
  @inject(accounts=Accounts)
  def test_get_by_id(self, accounts):
-   account = Account(email='test@foo.com', name='Test User')
+   account = Account(name='Test User')
    self.db.session.add(account)
    self.db.session.commit()
 

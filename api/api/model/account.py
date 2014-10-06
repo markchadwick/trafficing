@@ -11,7 +11,6 @@ from api.model import WithPublicId
 class Account(Base, WithPublicId):
   __tablename__ = 'users'
 
-  email = Column(String(255), nullable=False, unique=True)
   name  = Column(String(255), nullable=False)
 
 

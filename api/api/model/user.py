@@ -1,6 +1,7 @@
 from flask.ext.sqlalchemy import SQLAlchemy
 from hashlib import sha1
 from injector import inject
+from random import random
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import String
@@ -20,8 +21,18 @@ class User(Base, WithPublicId):
   email      = Column(String(255), nullable=False, unique=True)
   password   = Column(String(255), nullable=False)
 
-  # account = relationship('User',
-  #             backref=backref('users', cascase='all,delete'))
+  account = relationship('Account',
+              backref=backref('users', cascade='all,delete'))
+
+  def set_password(self, password, algo='sha1'):
+    """
+    Set the encrypted password of this user based on the given clear text
+    password.
+    """
+    algo = 'sha1'
+    salt = sha1(str(random())).hexdigest()[:5]
+    hsh = sha1(salt+password).hexdigest()
+    self.password = '%s$%s$%s' % (algo, salt, hsh)
 
 
 class Users(Collection):
@@ -30,14 +41,14 @@ class Users(Collection):
   def __init__(self, db):
     super(Users, self).__init__(User, db)
 
-  def authenticate(cls, email, password):
+  def authenticate(self, email, password):
     """
     A rough approximation of Django's built-in authentication mechanism. Queries
     the DB for an account with the given email, and checks to see if the hash of
     the password is equal to the one supplied.
     """
     lc = func.lower
-    login = cls.query.filter(lc(cls.email) == lc(email)).first()
+    login = self.query.filter(lc(User.email) == lc(email)).first()
     if not login or not login.password:
       return None
 

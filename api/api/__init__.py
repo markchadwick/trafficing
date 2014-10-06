@@ -1,5 +1,3 @@
-import functools
-
 from flask import Flask
 from flask_injector import FlaskInjector
 from injector import Injector
