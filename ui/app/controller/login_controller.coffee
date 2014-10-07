@@ -1,5 +1,5 @@
 React      = require 'react'
-ReactForms = require 'react-forms'
+ReactForms = require '../../react-forms'
 
 Session    = require '../model/session'
 {Injected} = require '../mixin'
