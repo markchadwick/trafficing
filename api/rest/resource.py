@@ -1,16 +1,7 @@
-import json
-
-from flask import Request
-from flask import Response
 from flask_injector import request
-from functools import wraps
 from injector import Injector
 from injector import Key
 from injector import inject
-from schema import Schema
-
-from rest import Codec
-from rest import exc
 
 
 ReadSchema  = Key('resource.schema.read')
@@ -21,12 +12,13 @@ WriteSchema = Key('resource.schema.write')
 
 class Resource(object):
   handlers = [
-    ('',      'get',          ['GET']),
-    ('/',     'list',         ['GET']),
-    ('/',     'create',       ['POST']),
-    ('/<id>', 'update_by_id', ['PUT']),
-    ('/<id>', 'get_by_id',    ['GET']),
-    ('/<id>', 'delte_by_id',  ['DELETE']),
+    ('',      'get',              ['GET']),
+    ('',      'create_singleton', ['POST']),
+    ('/',     'list',             ['GET']),
+    ('/',     'create',           ['POST']),
+    ('/<id>', 'update_by_id',     ['PUT']),
+    ('/<id>', 'get_by_id',        ['GET']),
+    ('/<id>', 'delte_by_id',      ['DELETE']),
   ]
 
   def __init__(self, cls, root):

@@ -32,6 +32,9 @@ class SessionResource(object):
       raise exc.Forbidden()
     return self._to_simple()
 
+  def create_singleton(self, user):
+    return self.create(user)
+
   def create(self, user):
     user = self.users.authenticate(user['email'], user['password'])
     if user is None:

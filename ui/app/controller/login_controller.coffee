@@ -1,13 +1,14 @@
 React      = require 'react'
 ReactForms = require '../../react-forms'
 
+Schema   = ReactForms.schema.Schema
+Property = ReactForms.schema.Property
+Form     = ReactForms.Form
+
 Session    = require '../model/session'
 {Injected} = require '../mixin'
 
-
-Schema   = ReactForms.schema.Schema
-Property = ReactForms.schema.Property
-Form = ReactForms.Form
+LoginView = require '../view/login'
 
 LoginSchema =
   <Schema>
@@ -25,16 +26,19 @@ LoginController = React.createClass
 
   getInitialState: ->
     session:  @inject Session
+    loggedIn: false
+    pending:  true
 
-  handleChange: (update) ->
-    console.log 'update', update
-    @state.session.set(update)
-    console.log 'json', @state.session.toJSON()
+  handleSubmit: (update) ->
+    @setState(pending: true)
+    @state.session.save(update, {
+      method: 'PUT'
+      success: => @setState(pending: false, loggedIn: true)
+      error:   => @setState(pending: false, loggedIn: false)
+    })
 
   render: ->
-    <div>
-      <Form schema=LoginSchema onUpdate=@handleChange />
-    </div>
+    <LoginView pending=@state.pending onSubmit=@handleSubmit />
 
 
 module.exports = LoginController
