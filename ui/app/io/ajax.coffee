@@ -28,13 +28,15 @@ class XMLHttpAjax extends Ajax
   assets: inject Assets
 
   _request: (options, deferred) ->
-    method = options.type or 'GET'
-    url    = options.url
+    method  = options.type or 'GET'
+    url     = options.url
+    promise = deferred.promise
 
     download = @assets.track(url)
     xhr = new window.XMLHttpRequest()
 
     xhr.addEventListener 'progress', (e) ->
+      promise.emit('progress', e)
       download.progress(e.loaded, e.total)
 
     xhr.addEventListener 'load', ->
@@ -42,10 +44,12 @@ class XMLHttpAjax extends Ajax
 
     xhr.onload = (e) ->
       if @status is 200
+        console.log 'ajax will resolve'
         switch options.dataType
           when 'json' then deferred.resolve(JSON.parse(@response))
           else deferred.resolve(@response)
       else
+        console.log 'ajax will reject'
         deferred.reject(e)
 
     xhr.open(method, url, true)

@@ -11,9 +11,5 @@ class Collection extends Backbone.Collection
   apiUrl: (path) ->
     @rootUrl + path
 
-  constructor: ->
-    super
-    @fetch(reset: true)
-
 
 module.exports = {Collection, Model}

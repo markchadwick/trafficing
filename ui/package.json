@@ -10,13 +10,11 @@
 
   "dependencies": {
     "backbone":             "1.1.x",
-    "cmpnt":                "0.0.12",
     "deferred":             "0.7.x",
     "honk-di":              "0.0.10",
-    "lodash":               "2.4.1",
-    "moment":               "2.8.x",
     "react":                "0.11.x",
     "react-bootstrap":      "0.11.x",
+    "react-forms":          "0.6.x",
     "react-router":         "0.7.x"
   },
 
@@ -37,7 +35,6 @@
     "gulp-util":            "2.2.x",
     "mocha":                "^1",
     "serve-static":         "1.5.3",
-    "sinon":                "1.10.x",
     "xunit-file":           "0.0.x"
   }
 }

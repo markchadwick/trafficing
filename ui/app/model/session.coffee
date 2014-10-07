@@ -1,14 +1,20 @@
 Backbone = require 'backbone'
 inject   = require 'honk-di'
 
+{Ajax}   = require '../io/ajax'
 {Model}  = require './index'
 
 
-class Session
+class Session extends Model
   @scope: 'singleton'
 
-  _url: ->
-    @apiRoot + '/session'
+  apiRoot:  inject 'api.root'
+  ajax:     inject Ajax
+
+  constructor: ->
+    @url = @apiRoot + '/session'
+    super
+
 
 
 module.exports = Session

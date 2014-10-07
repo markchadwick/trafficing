@@ -1,4 +1,5 @@
-inject = require 'honk-di'
+Backbone = require 'backbone'
+inject   = require 'honk-di'
 
 App           = require './app'
 {Ajax}        = require './io/ajax'
@@ -17,11 +18,16 @@ class Binder extends inject.Binder
       @bindConstant(k).to(v)
 
 
+{setMixinInjector} = require './mixin/injected'
 init = (config) =>
   binder   = new Binder(config)
   injector = new inject.Injector(binder)
-  app      = injector.getInstance(App)
 
+  ajax          = injector.getInstance(Ajax)
+  Backbone.ajax = ajax.ajax
+  setMixinInjector(injector)
+
+  app = injector.getInstance(App)
   app.init()
 
 
